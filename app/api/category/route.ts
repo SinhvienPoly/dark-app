@@ -37,10 +37,7 @@ export const POST = async (req: NextRequest) => {
         },
     });
 
-    const path = req.nextUrl.searchParams.get('path');
-    if (path) {
-        revalidatePath(path);
-    }
+    revalidatePath('/categories/new');
 
     return NextResponse.json(
         {

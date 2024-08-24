@@ -1,10 +1,13 @@
-import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { videoSchema } from '@/schema';
 import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+
 export const GET = async (req: NextRequest) => {
+    const params = req;
+
     try {
         const data = await db.video.findMany();
 
@@ -62,10 +65,7 @@ export const POST = async (req: NextRequest) => {
         });
     }
 
-    const path = req.nextUrl.searchParams.get('path');
-    if (path) {
-        revalidatePath(path);
-    }
+    revalidatePath('/videos/new');
 
     return NextResponse.json({ data }, { status: 200 });
 };

@@ -10,8 +10,6 @@ export default auth(async (req): Promise<any> => {
     const { nextUrl } = req;
     const isLoggedIn = !!req.auth;
 
-    console.log('LOGGEDIN', isLoggedIn);
-
     const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
     const isPublicRoutes = publicRoutes.includes(nextUrl.pathname);
     const isAuthRoutes = authRoutes.includes(nextUrl.pathname);
@@ -29,7 +27,14 @@ export default auth(async (req): Promise<any> => {
     }
 
     if (!isLoggedIn && !isPublicRoutes) {
-        return NextResponse.redirect(new URL('/login', nextUrl));
+        let callbackUrl = nextUrl.pathname;
+        if (nextUrl.search) {
+            callbackUrl += nextUrl.search;
+        }
+
+        const encodedCallbackUrl = encodeURIComponent(callbackUrl);
+
+        return NextResponse.redirect(new URL(`/login?${encodedCallbackUrl}`, nextUrl));
     }
 
     return NextResponse.next();

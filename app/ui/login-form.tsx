@@ -11,8 +11,12 @@ import { loginSchema } from '@/schema';
 import { useState, useTransition } from 'react';
 import { login } from '@/actions/auth';
 import ResponseMessage from '@/components/response-message';
+import { useSearchParams } from 'next/navigation';
 
 const LoginForm = () => {
+    const searchParams = useSearchParams();
+    const callbackUrl = searchParams.get('callbackUrl');
+
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -26,7 +30,7 @@ const LoginForm = () => {
 
     const onSubmit = (values: z.infer<typeof loginSchema>) => {
         startTransition(() => {
-            login(values).then((data) => {
+            login(values, callbackUrl!).then((data) => {
                 setErrorMessage(data?.errors!);
             });
         });

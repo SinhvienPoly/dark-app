@@ -87,10 +87,7 @@ export const PUT = async (req: NextRequest, { params: { id } }: ParamsProps) => 
         });
     }
 
-    const path = req.nextUrl.searchParams.get('path');
-    if (path) {
-        revalidatePath(path);
-    }
+    revalidatePath(`/videos/${data.id}`);
 
     return NextResponse.json({ data }, { status: 200 });
 };

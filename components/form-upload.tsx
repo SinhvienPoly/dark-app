@@ -16,23 +16,36 @@ import {
 import { RadioGroup } from './ui/radio-group';
 import Loader from './loader';
 
-import { ChangeEvent, ReactNode, useState } from 'react';
+import { ChangeEvent, ReactNode, useState, useTransition } from 'react';
 
 import Image from 'next/image';
 import { Image as ImageType } from '@prisma/client';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { restApi } from '@/lib/axios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 type Props = {
+    filesData?: ImageType[];
     onSave?: (file: ImageType) => void;
     children?: ReactNode;
 };
 
 const FormUpload = ({ onSave, children }: Props) => {
+    const queryClient = useQueryClient();
+
     const searchParams = useSearchParams();
 
-    const queryClient = useQueryClient();
+    const pathname = usePathname();
+
+    const query = searchParams.get('type');
+
+    const router = useRouter();
+
+    const [type, setType] = useState<string>('all');
+
+    const [dialog, setDialog] = useState(false);
+    const [message, setMessage] = useState<string | null>(null);
+    const [file, setFile] = useState<ImageType | null>(null);
 
     const handleQueryType = (value: string) => {
         const params = new URLSearchParams(searchParams);
@@ -42,11 +55,9 @@ const FormUpload = ({ onSave, children }: Props) => {
         } else {
             params.delete('type');
         }
-    };
 
-    const [dialog, setDialog] = useState(false);
-    const [message, setMessage] = useState<string | null>(null);
-    const [file, setFile] = useState<ImageType | null>(null);
+        router.push(`${pathname}?${params.toString()}`);
+    };
 
     const onOpen = (open: boolean) => {
         setDialog(open);
@@ -74,12 +85,13 @@ const FormUpload = ({ onSave, children }: Props) => {
     };
 
     const { data: filesData, isLoading } = useQuery<{ data: ImageType[] }>({
-        queryKey: ['files'],
+        queryKey: ['files', query],
         queryFn: async () => {
-            const response = await restApi.get('/api/uploads');
+            const response = await restApi.get(`/api/uploads?type=${query}`);
 
             return response.data;
         },
+        refetchOnMount: true,
     });
 
     const { mutate, isPending } = useMutation({
@@ -127,7 +139,7 @@ const FormUpload = ({ onSave, children }: Props) => {
                                 <SelectContent>
                                     <SelectGroup>
                                         <SelectLabel>Định dạng file</SelectLabel>
-                                        <SelectItem value="all">Tất cả</SelectItem>
+                                        <SelectItem value={'all'}>Tất cả</SelectItem>
                                         <SelectItem value="video">Dạng video</SelectItem>
                                         <SelectItem value="image">Dạng ảnh</SelectItem>
                                     </SelectGroup>

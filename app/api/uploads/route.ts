@@ -1,17 +1,21 @@
 import { db } from '@/lib/db';
 import { writeFile } from 'fs/promises';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
-
-export const dynamic = 'force-static';
 
 export const GET = async (req: NextRequest) => {
     try {
-        const searchParams = req.nextUrl.searchParams;
+        const { searchParams } = new URL(req.nextUrl);
         const query = searchParams.get('type');
 
         const images = await db.image.findMany({
             where: {
-                type: query ? query?.toString() : undefined,
+                type:
+                    query === 'all'
+                        ? {}
+                        : {
+                              startsWith: query?.toString(),
+                          },
             },
         });
 
@@ -64,6 +68,8 @@ export const POST = async (req: NextRequest) => {
             type: file.type,
         },
     });
+
+    revalidatePath('/videos/new');
 
     return Response.json(
         {

@@ -50,10 +50,7 @@ export const PUT = async (req: NextRequest, { params: { id } }: ParamsProps) => 
         },
     });
 
-    const path = req.nextUrl.searchParams.get('path');
-    if (path) {
-        revalidatePath(path);
-    }
+    revalidatePath(`/categories/${data.id}`);
 
     return NextResponse.json(
         {

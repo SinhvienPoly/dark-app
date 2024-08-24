@@ -2,7 +2,7 @@ import type { NextAuthConfig } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { loginSchema } from './schema';
 import { getUserByEmail } from './actions/user';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 export default {
     providers: [

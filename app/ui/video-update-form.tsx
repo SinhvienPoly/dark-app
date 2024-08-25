@@ -121,14 +121,6 @@ const VideoUpdateForm = ({ categories, data }: Props) => {
             });
         }
 
-        console.log({
-            ...values,
-            tags,
-            categories: categoryIds,
-            thumbnail_id: thumbnail.id,
-            video_id: video.id,
-        });
-
         startTransition(async () => {
             await restApi
                 .put(`/api/videos/${data?.id}`, {

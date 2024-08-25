@@ -1,4 +1,6 @@
-export const publicRoutes = ['/'];
+import { pathToRegexp } from 'path-to-regexp';
+
+export const publicRoutes = [pathToRegexp('/'), pathToRegexp('/detail/:id')];
 
 export const authRoutes = ['/login', '/register'];
 

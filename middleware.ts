@@ -11,7 +11,7 @@ export default auth(async (req): Promise<any> => {
     const isLoggedIn = !!req.auth;
 
     const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
-    const isPublicRoutes = publicRoutes.includes(nextUrl.pathname);
+    const isPublicRoutes = publicRoutes.some((parttern) => parttern.test(nextUrl.pathname));
     const isAuthRoutes = authRoutes.includes(nextUrl.pathname);
 
     if (isApiAuthRoute) {

@@ -1,7 +1,8 @@
 import { db } from '@/lib/db';
-import { writeFile } from 'fs/promises';
+// import { writeFile } from 'fs/promises';
 import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+import { put } from '@vercel/blob';
 
 export const GET = async (req: NextRequest) => {
     try {
@@ -42,13 +43,17 @@ export const POST = async (req: NextRequest) => {
         return Response.json({ message: 'Phương tiện không hợp lệ' }, { status: 201 });
     }
 
-    const byteData = await file.arrayBuffer();
+    const blob = await put(file.name, file.stream(), {
+        access: 'public',
+    });
 
-    const buffer = Buffer.from(byteData);
+    // const byteData = await file.arrayBuffer();
 
-    const path = `./public/uploads/${file.name}`;
+    // const buffer = Buffer.from(byteData);
 
-    await writeFile(path, buffer);
+    // const path = `./public/uploads/${file.name}`;
+
+    // await writeFile(path, buffer);
 
     const duplucated = await db.image.findUnique({
         where: {
@@ -62,7 +67,7 @@ export const POST = async (req: NextRequest) => {
 
     await db.image.createMany({
         data: {
-            url: `/uploads/${file.name}`,
+            url: `${blob.url}`,
             name: file.name,
             size: file.size,
             type: file.type,
@@ -74,7 +79,7 @@ export const POST = async (req: NextRequest) => {
     return Response.json(
         {
             message: 'Nạp file thành công',
-            url: `${process.env.NEXT_REDIRECT_URL}/uploads/${file.name}`,
+            url: `/uploads/${file.name}`,
         },
         { status: 200 },
     );
